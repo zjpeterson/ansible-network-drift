@@ -1,4 +1,4 @@
 .ansible
 collections/ansible_collections
 *.log
-inventory*
+inventory_containerlab
