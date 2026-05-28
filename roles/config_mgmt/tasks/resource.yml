@@ -1,0 +1,13 @@
+---
+- name: Run {{ resource.name }} config
+  ansible.netcommon.network_resource:
+    name: "{{ resource.name }}"
+    state: replaced
+    config: "{{ resource.config }}"
+  check_mode: "{{ config_mgmt_check_mode }}"
+  register: _results
+
+- name: Add results to change pool
+  ansible.builtin.set_fact:
+    _lines: "{{ _lines | default([]) + _results.commands }}"
+  when: _results.changed

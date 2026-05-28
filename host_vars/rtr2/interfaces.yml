@@ -1,0 +1,7 @@
+---
+net_interfaces:
+  - name: Ethernet1
+    enabled: true
+    mode: layer3
+  - name: Management1
+    enabled: true

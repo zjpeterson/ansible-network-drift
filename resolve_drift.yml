@@ -1,0 +1,69 @@
+---
+- name: Resolve configuration drift
+  hosts: cisco,arista
+  gather_facts: false
+
+  pre_tasks:
+    - name: Find all open drift changes
+      servicenow.itsm.change_request_info:
+        query:
+          - state: = scheduled
+            short_description: = Automated network config drift correction
+            cmdb_ci.name: = {{ inventory_hostname }}
+      register: _found_changes
+
+    - name: End the host if there are no results
+      ansible.builtin.meta: end_host
+      when: _found_changes.records | length == 0
+
+    - name: Fail the host if there is more than one result
+      ansible.builtin.fail:
+        msg: Inventory item had multiple drift changes found in SNOW
+      when: _found_changes.records | length > 1
+
+    - name: Save change number
+      ansible.builtin.set_fact:
+        snow_change_number: "{{ _found_changes.records.0.number }}"
+
+    - name: Get date and time info
+      ansible.builtin.setup:
+        gather_subset: min
+      delegate_to: localhost
+      run_once: true
+
+  tasks:
+    - name: Set SNOW change to Implement phase
+      ansible.builtin.include_role:
+        name: zjpeterson.labcommon.snow_change
+      vars:
+        snow_change_operation: update
+        snow_change_assignment_group: Network
+        snow_change_new_state: implement
+        snow_change_work_notes: Ansible is starting remediation
+
+    - name: Run config remediation
+      ansible.builtin.include_role:
+        name: config_mgmt
+      vars:
+        config_mgmt_check_mode: false
+
+    - name: Set SNOW change to Review phase
+      ansible.builtin.include_role:
+        name: zjpeterson.labcommon.snow_change
+      vars:
+        snow_change_operation: update
+        snow_change_assignment_group: Network
+        snow_change_new_state: review
+        snow_change_work_notes: |
+          Ansible applied the following config lines:
+          {% for line in config_mgmt_lines %}
+          {{ line }}
+          {% endfor %}
+
+    - name: Close SNOW change
+      ansible.builtin.include_role:
+        name: zjpeterson.labcommon.snow_change
+      vars:
+        snow_change_operation: close
+        snow_change_assignment_group: Network
+        snow_change_close_notes: Automated remediation successful

@@ -1,0 +1,4 @@
+.ansible
+collections/ansible_collections
+*.log
+inventory*

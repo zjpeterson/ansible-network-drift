@@ -1,0 +1,6 @@
+---
+config_mgmt_network_resources:
+  - name: snmp_server
+    config: "{{ net_snmp_server }}"
+  - name: interfaces
+    config: "{{ net_interfaces }}"

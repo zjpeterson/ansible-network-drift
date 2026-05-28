@@ -1,0 +1,6 @@
+---
+net_interfaces:
+  - name: ge-0/0/0
+    enabled: true
+  - name: fxp0
+    enabled: true

@@ -1,0 +1,27 @@
+---
+- name: Detect configuration drift
+  hosts: cisco,arista
+  gather_facts: false
+
+  tasks:
+    - name: Run drift detection
+      ansible.builtin.include_role:
+        name: config_mgmt
+      vars:
+        config_mgmt_check_mode: true
+
+    - name: Create SNOW change
+      ansible.builtin.include_role:
+        name: zjpeterson.labcommon.snow_change
+      vars:
+        snow_change_operation: create
+        snow_change_ci_name: "{{ inventory_hostname }}"
+        snow_change_ci_sys_class: cmdb_ci_netgear
+        snow_change_short_description: "Automated network config drift correction"
+        snow_change_description: |
+          Configuration was detected on this device that is out of compliance and will be corrected.
+          Will run config lines:
+          {% for line in config_mgmt_lines %}
+          {{ line }}
+          {% endfor %}
+      when: config_mgmt_lines | length > 0

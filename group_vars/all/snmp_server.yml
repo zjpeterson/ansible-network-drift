@@ -1,0 +1,7 @@
+---
+net_snmp_server:
+  communities:
+    - name: my-snmp-write
+      rw: true
+    - name: my-snmp-read
+      ro: true

@@ -1,0 +1,10 @@
+---
+- name: Run resource check
+  ansible.builtin.include_tasks: resource.yml
+  loop: "{{ config_mgmt_network_resources }}"
+  loop_control:
+    loop_var: resource
+
+- name: Save config lines
+  ansible.builtin.set_fact:
+    config_mgmt_lines: "{{ _lines | default([]) }}"
