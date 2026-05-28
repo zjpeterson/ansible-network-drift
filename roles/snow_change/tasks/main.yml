@@ -1,3 +1,0 @@
----
-- name: Include operation-specific tasks
-  ansible.builtin.include_tasks: "{{ snow_change_operation }}.yml"
