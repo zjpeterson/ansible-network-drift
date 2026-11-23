@@ -4,3 +4,5 @@ collections:
     version: 5.0.0
   - name: zjpeterson.labcommon
     version: 0.4.0
+  - name: servicenow.itsm
+    version: 2.17.0
